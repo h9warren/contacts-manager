@@ -62,10 +62,14 @@ public class App {
 			addContact(newContact());
 		} else if (choice == 3) {
 			//search
-			searchContacts();	
+			System.out.print("Contact Search\n");
+			System.out.println("_____________________\n");
+			displaySearchResults(searchContacts(), searchTerm());
 		} else if (choice == 4) {
 			//delete
-			
+			System.out.print("Delete Contact\n");
+			System.out.println("_____________________\n");
+			deleteContact(searchContacts(), searchTerm());
 		} else if (choice == 5) {
 			System.out.println("bye");
 			sc.close();
@@ -88,20 +92,19 @@ public class App {
 			e.printStackTrace();
 		}
 		return null;	
-		}
+	}
 	
 	public static void saveFile () {
-			List<String> contactsListToWrite = new ArrayList<>();
-			for (Contact entry : contactList) {	
-				contactsListToWrite.add(entry.getFirst() + " " + entry.getLast() +  " " + entry.getNumber());
-			}
-			try {
-				Files.write(dataFile, contactsListToWrite);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		List<String> contactsListToWrite = new ArrayList<>();
+		for (Contact entry : contactList) {	
+			contactsListToWrite.add(entry.getFirst() + " " + entry.getLast() +  " " + entry.getNumber());
 		}
+		try {
+			Files.write(dataFile, contactsListToWrite);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public static void displayAllContacts(List<Contact> contactList) {
 		System.out.println("\n\n\n\n\n");
 		System.out.println("Name | Phone number");
@@ -115,7 +118,6 @@ public class App {
 		}
 		logic(choice());
 	}
-	
 	public static Contact newContact() {
 		String first;
 		String last;
@@ -139,34 +141,82 @@ public class App {
 		System.out.println("\n" + newcontact.getFirst() + " " + newcontact.getLast() + " added!");
 		logic(choice());
 	}
-	public static void searchContacts() {
-		System.out.println("\nSEARCH CONTACTS\n_____________\nsearch: ");
+	public static String searchTerm() {
+		System.out.print("contact name: ");
 		String searchterm = sc.next().toLowerCase();
 		searchterm.trim();
 		sc.nextLine();
-		List<Contact> allContacts = getAllContacts();
+		return searchterm;
+	}
+	public static void displaySearchResults(List<Contact>allContacts,String searchterm) {
 		int i = 0;
-		
+		System.out.print("\n");
 		for (Contact contact : allContacts) {
 			if ((contact.getFirst().toLowerCase().equals(searchterm)) || (contact.getLast().toLowerCase().equals(searchterm))) {
 				i++;
-				System.out.print("MATCHING ENTRIES: " + i + "\n");
-				System.out.println("_____________________\n");
-				System.out.println("First: " + contact.getFirst() + "\n");
-				System.out.println("Last: " + contact.getLast() + "\n");
-				System.out.println("Number: " + contact.getNumber() + "\n");
-				System.out.println("_____________________\n");
+				System.out.println(i + ". " +
+					contact.getFirst() + " " +
+					contact.getLast() + " | " +
+					contact.getNumber());
 			}
-		} if (i == 0) {
-			System.out.print("NO MATCHING ENTRIES\n");
-			System.out.println("_____________________\n");
 		}
+		System.out.print("\nMATCHING ENTRIES: " + i + "\n");
+		System.out.println("_____________________\n");		
+		searchAgain();
+	}
+	public static void deleteContact(List<Contact>allContacts,String searchterm) {
+		int g = 0;
+		System.out.print("\n");
+		for (Contact contact : allContacts) {
+			g++;
+			if ((contact.getFirst().toLowerCase().equals(searchterm)) || (contact.getLast().toLowerCase().equals(searchterm))) {
+				System.out.println(g + ". " +
+					contact.getFirst() + " " +
+					contact.getLast() + " | " +
+					contact.getNumber());
+			}
+		}
+		System.out.print("\nwhich " + searchterm + " to delete?\n");
+		System.out.println("_____________________\n");	
+		String del = pickContactToDelete();
+		int index = Integer.parseInt(del) - 1;
+		deleteContactAt(index, allContacts);
+		deleteAgain();
+	}
+	public static void deleteContactAt(int index, List<Contact> allContacts) {
+		allContacts.remove(index);
+		contactList = allContacts;
+		saveFile();
+	}
+	public static List<Contact> searchContacts() {
+		List<Contact> allContacts = getAllContacts();	
+		return allContacts;
+	}
+	public static String pickContactToDelete() {
+		String answer = sc.nextLine(); 
+		answer.trim();
+		return answer;
+	}
+	public static void searchAgain() {
 		System.out.print("SEARCH AGAIN? (y\\n) ");
 		String answer = sc.nextLine(); 
+		answer.trim();
 		if (answer.equals("y") || answer.equals("yes")) {
-			searchContacts();
+			displaySearchResults(searchContacts(), searchTerm());
 		} else {
 			logic(choice());
 		}	
 	}
+	public static void deleteAgain() {
+		System.out.print("DELETE ANOTHER CONTACT? (y\\n) ");
+		String answer = sc.nextLine(); 
+		answer.trim();
+		if (answer.equals("y") || answer.equals("yes")) {
+			deleteContact(searchContacts(), searchTerm());
+		} else {
+			logic(choice());
+		}	
+	}
+	
+	// need to save Contact object List to file
 }
