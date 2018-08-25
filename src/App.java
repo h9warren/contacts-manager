@@ -217,6 +217,4 @@ public class App {
 			logic(choice());
 		}	
 	}
-	
-	// need to save Contact object List to file
 }
